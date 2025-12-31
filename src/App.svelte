@@ -7,6 +7,7 @@
     import AppointmentCard from './lib/components/AppointmentCard.svelte';
     import Toast from './lib/components/Toast.svelte';
     import WelcomePage from './lib/components/WelcomePage.svelte';
+    import ConfirmModal from './lib/components/ConfirmModal.svelte';
 
     let currentTab = $state('home'); // 'home' | 'appointments'
     let showWelcome = $state(true);
@@ -14,12 +15,29 @@
     let isBooking = $state(false); // When modal is open
     let editingAppointment = $state(null); // For rescheduling
 
+    // Confirm Modal State
+    let showConfirm = $state(false);
+    let confirmMessage = $state('');
+    let confirmCallback = $state(null);
+
     let toastMessage = $state('');
     let toastType = $state('success');
 
     function showToast(msg, type = 'success') {
         toastMessage = msg;
         toastType = type;
+    }
+
+    function confirmAction(message, action) {
+        confirmMessage = message;
+        confirmCallback = action;
+        showConfirm = true;
+    }
+
+    function handleConfirm() {
+        if (confirmCallback) confirmCallback();
+        showConfirm = false;
+        confirmCallback = null;
     }
 
     function onTabChange(tab) {
@@ -65,10 +83,10 @@
     }
 
     function handleCancelAppointment(id) {
-        if (confirm("Are you sure you want to cancel this appointment?")) {
+        confirmAction("Are you sure you want to cancel this appointment?", () => {
             store.cancelAppointment(id);
             showToast("Appointment canceled.", "success");
-        }
+        });
     }
 
     function handleCancelBooking() {
@@ -136,6 +154,14 @@
         type={toastType} 
         onDismiss={() => toastMessage = ''} 
     />
+
+    {#if showConfirm}
+        <ConfirmModal 
+            message={confirmMessage} 
+            onCancel={() => showConfirm = false} 
+            onConfirm={handleConfirm} 
+        />
+    {/if}
 {/if}
 
 <style>
