@@ -1,4 +1,5 @@
-    import { store } from '../store.svelte.js'; // Ensure store is imported
+<script>
+    import { store } from '../store.svelte.js';
     import { fade } from 'svelte/transition';
 
     let { onComplete } = $props();
@@ -31,7 +32,6 @@
                     // Assuming data contains the token as 'token' or 'accessToken' or strictly implies the next steps use the authCode? 
                     // The user prompt implies 'token' variable is used later for payment.
                     // We'll optimistically save data.token if it exists, or fall back to authCode if the API is just an echo. 
-                    // Given common patterns, it's likely data.token.
                     const tokenToSave = data.token || data.accessToken || authCode;
                     store.setAuthToken(tokenToSave);
 
