@@ -46,7 +46,7 @@
 
 <style>
     .appt-card {
-        background: white;
+        background: var(--color-white);
         border-radius: var(--radius-md);
         box-shadow: var(--shadow-sm);
         border-left: 4px solid var(--color-primary);

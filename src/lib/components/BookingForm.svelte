@@ -152,7 +152,7 @@
     }
 
     .modal-content {
-        background: white;
+        background: var(--color-white);
         padding: 2rem;
         border-radius: var(--radius-lg);
         width: 90%;
@@ -213,7 +213,7 @@
     .slot-btn {
         padding: 0.5rem;
         border: 1px solid var(--color-border);
-        background: white;
+        background: var(--color-white);
         border-radius: var(--radius-md);
         cursor: pointer;
         font-size: 0.9rem;

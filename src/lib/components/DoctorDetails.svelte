@@ -93,7 +93,7 @@
     }
 
     .details-card {
-        background: white;
+        background: var(--color-white);
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-sm);
         padding: 2rem;

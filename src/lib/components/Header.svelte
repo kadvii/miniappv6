@@ -1,4 +1,5 @@
 <script>
+    import { store } from '../store.svelte.js';
     let { currentTab, onTabChange } = $props();
 </script>
 
@@ -16,6 +17,9 @@
             onclick={() => onTabChange('appointments')}
         >
             My Appointments
+        </button>
+        <button class="theme-btn" onclick={store.toggleTheme} aria-label="Toggle Dark Mode">
+            {store.darkMode ? '☀️' : '🌙'}
         </button>
     </nav>
 </header>
@@ -65,5 +69,10 @@
         background-color: var(--color-primary-light);
         color: var(--color-primary);
         font-weight: 600;
+    }
+
+    .theme-btn {
+        font-size: 1.25rem;
+        padding: 0.25rem 0.75rem;
     }
 </style>

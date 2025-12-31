@@ -61,7 +61,7 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        background: white;
+        background: var(--color-white);
         padding: 1.5rem;
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-sm);
@@ -89,7 +89,7 @@
     .tag {
         padding: 0.5rem 1rem;
         border: 1px solid var(--color-border);
-        background: white;
+        background: var(--color-white);
         border-radius: 20px;
         cursor: pointer;
         transition: all 0.2s;

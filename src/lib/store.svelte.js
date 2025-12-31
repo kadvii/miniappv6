@@ -6,11 +6,13 @@ function createStore() {
     // Load initial state from LocalStorage or default
     const storedAppointments = localStorage.getItem('appointments');
     const storedBookedSlots = localStorage.getItem('bookedSlots');
+    const storedTheme = localStorage.getItem('theme'); // 'dark' or 'light'
 
     let appointments = $state(storedAppointments ? JSON.parse(storedAppointments) : []);
     let bookedSlots = $state(storedBookedSlots ? JSON.parse(storedBookedSlots) : {});
+    let darkMode = $state(storedTheme === 'dark');
 
-    // Effect to persist appointments whenever they change
+    // Effect to persist appointments and theme
     $effect.root(() => {
         $effect(() => {
             localStorage.setItem('appointments', JSON.stringify(appointments));
@@ -18,7 +20,19 @@ function createStore() {
         $effect(() => {
             localStorage.setItem('bookedSlots', JSON.stringify(bookedSlots));
         });
+        $effect(() => {
+            localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+            if (darkMode) {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+        });
     });
+
+    function toggleTheme() {
+        darkMode = !darkMode;
+    }
 
     function bookAppointment(appointment) {
         // Create a unique key for the slot: doctorId_date_time
@@ -108,10 +122,12 @@ function createStore() {
         get doctors() { return doctors; },
         get appointments() { return appointments; },
         get bookedSlots() { return bookedSlots; },
+        get darkMode() { return darkMode; },
         bookAppointment,
         cancelAppointment,
         rescheduleAppointment,
-        deleteAppointment
+        deleteAppointment,
+        toggleTheme
     };
 }
 

@@ -22,7 +22,7 @@
 
 <style>
     .doctor-card {
-        background: white;
+        background: var(--color-white);
         border-radius: var(--radius-lg);
         padding: 1.5rem;
         box-shadow: var(--shadow-sm);
