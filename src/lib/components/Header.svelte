@@ -1,6 +1,10 @@
 <script>
     import { store } from '../store.svelte.js';
+    import LoginModal from './LoginModal.svelte';
+
     let { currentTab, onTabChange } = $props();
+
+    let showLoginModal = $state(false);
 </script>
 
 <header class="app-header">
@@ -21,8 +25,22 @@
         <button class="theme-btn" onclick={store.toggleTheme} aria-label="Toggle Dark Mode">
             {store.darkMode ? '☀️' : '🌙'}
         </button>
+        
+        {#if store.isAdmin}
+            <span class="admin-badge">Admin</span>
+            <button onclick={store.logout}>Logout</button>
+        {:else}
+            <button onclick={() => showLoginModal = true}>Login</button>
+        {/if}
     </nav>
 </header>
+
+{#if showLoginModal}
+    <LoginModal 
+        onCancel={() => showLoginModal = false}
+        onLoginSuccess={() => showLoginModal = false}
+    />
+{/if}
 
 <style>
     .app-header {
@@ -74,5 +92,15 @@
     .theme-btn {
         font-size: 1.25rem;
         padding: 0.25rem 0.75rem;
+    }
+
+    .admin-badge {
+        background-color: var(--color-error);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-weight: bold;
+        align-self: center;
     }
 </style>

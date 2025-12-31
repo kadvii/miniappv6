@@ -1,11 +1,17 @@
 <script>
     import DoctorCard from './DoctorCard.svelte';
+    import AddDoctorForm from './AddDoctorForm.svelte';
+    import Toast from './Toast.svelte'; // Assuming global toast is handled in App, but if we need local... usually pass callback.
+    // App handles global toast via simple state in App.svelte usually.
+    // Let's pass "onDoctorAdded" callback which helps.
+    
     import { store } from '../store.svelte.js';
 
     let { onSelectDoctor } = $props();
 
     let searchTerm = $state('');
     let selectedSpecialization = $state('All');
+    let isAdding = $state(false);
 
     // Get unique specializations
     let specializations = $derived(['All', ...new Set(store.doctors.map(d => d.specialization))]);
@@ -19,6 +25,13 @@
 </script>
 
 <div class="doctor-list-container">
+    <div class="list-header">
+        <h2>Available Doctors</h2>
+        {#if store.isAdmin}
+            <button class="add-btn" onclick={() => isAdding = true}>+ Add Doc</button>
+        {/if}
+    </div>
+
     <div class="filters">
         <input 
             type="text" 
@@ -50,7 +63,36 @@
     </div>
 </div>
 
+{#if isAdding}
+    <AddDoctorForm 
+        onCancel={() => isAdding = false}
+        onSaved={() => isAdding = false}
+    />
+{/if}
+
 <style>
+    .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .list-header h2 {
+        margin: 0;
+        color: var(--color-primary-dark);
+    }
+
+    .add-btn {
+        background-color: var(--color-primary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        cursor: pointer;
+    }
+
     .doctor-list-container {
         display: flex;
         flex-direction: column;

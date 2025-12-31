@@ -6,8 +6,10 @@
     import BookingForm from './lib/components/BookingForm.svelte';
     import AppointmentCard from './lib/components/AppointmentCard.svelte';
     import Toast from './lib/components/Toast.svelte';
+    import WelcomePage from './lib/components/WelcomePage.svelte';
 
     let currentTab = $state('home'); // 'home' | 'appointments'
+    let showWelcome = $state(true);
     let selectedDoctor = $state(null); // When viewing details
     let isBooking = $state(false); // When modal is open
     let editingAppointment = $state(null); // For rescheduling
@@ -18,6 +20,13 @@
     function showToast(msg, type = 'success') {
         toastMessage = msg;
         toastType = type;
+    }
+
+    function onTabChange(tab) {
+        currentTab = tab;
+        selectedDoctor = null;
+        isBooking = false;
+        window.scrollTo(0, 0);
     }
 
     function handleSelectDoctor(doctor) {
@@ -68,68 +77,66 @@
     }
 </script>
 
-<Header 
-    {currentTab} 
-    onTabChange={(tab) => {
-        currentTab = tab;
-        selectedDoctor = null;
-        isBooking = false;
-        window.scrollTo(0, 0);
-    }} 
-/>
+{#if showWelcome}
+    <WelcomePage onComplete={() => showWelcome = false} />
+{:else}
+    <Header {currentTab} {onTabChange} />
 
-<main>
-    {#if currentTab === 'home'}
-        {#if selectedDoctor}
-            <DoctorDetails 
-                doctor={selectedDoctor} 
-                onBack={handleBackToHome}
-                onBook={handleStartBooking}
-            />
-        {:else}
-            <div class="hero">
-                <h1>Find Your Doctor</h1>
-                <p>Book appointments with the best specialists in your city.</p>
-            </div>
-            <DoctorList onSelectDoctor={handleSelectDoctor} />
-        {/if}
+    <main>
+        {#if currentTab === 'home'}
+            {#if selectedDoctor}
+                <DoctorDetails 
+                    doctor={selectedDoctor} 
+                    onBack={handleBackToHome}
+                    onBook={handleStartBooking}
+                />
+            {:else}
+                <div class="hero">
+                    <h1>Find Your Doctor</h1>
+                    <p>Book appointments with the best specialists in your city.</p>
+                </div>
+                <!-- Pass current date if needed, or DoctorList handles it -->
+                <DoctorList onSelectDoctor={handleSelectDoctor} />
+            {/if}
 
-    {:else if currentTab === 'appointments'}
-        <div class="appointments-view">
-            <h1>My Appointments</h1>
-            <div class="appointments-list">
-                {#each store.appointments as appt (appt.id)}
-                    <AppointmentCard 
-                        appointment={appt} 
-                        onCancel={handleCancelAppointment} 
-                        onReschedule={handleRescheduleRequest}
-                    />
-                {/each}
+        {:else if currentTab === 'appointments'}
+            <div class="container container-margin">
+                <h2>My Appointments</h2>
                 {#if store.appointments.length === 0}
-                    <div class="empty-msg">
-                        <p>No appointments yet.</p>
-                        <button class="btn-link" onclick={() => currentTab = 'home'}>Book one now</button>
+                    <div class="empty-state">
+                        <p>No appointments booked yet.</p>
+                        <button class="btn-primary" onclick={() => currentTab = 'home'}>Find a Doctor</button>
+                    </div>
+                {:else}
+                    <div class="appointments-grid">
+                        {#each store.appointments as appointment (appointment.id)}
+                            <AppointmentCard 
+                                {appointment} 
+                                onCancel={handleCancelAppointment} 
+                                onReschedule={handleRescheduleRequest}
+                            />
+                        {/each}
                     </div>
                 {/if}
             </div>
-        </div>
-    {/if}
-</main>
+        {/if}
+    </main>
 
-{#if isBooking && selectedDoctor}
-    <BookingForm 
-        doctor={selectedDoctor}
-        existingAppointment={editingAppointment}
-        onCancel={handleCancelBooking}
-        onBooked={handleBookingComplete}
+    {#if isBooking && selectedDoctor}
+        <BookingForm 
+            doctor={selectedDoctor}
+            existingAppointment={editingAppointment}
+            onCancel={handleCancelBooking}
+            onBooked={handleBookingComplete}
+        />
+    {/if}
+
+    <Toast 
+        message={toastMessage} 
+        type={toastType} 
+        onDismiss={() => toastMessage = ''} 
     />
 {/if}
-
-<Toast 
-    message={toastMessage} 
-    type={toastType} 
-    onDismiss={() => toastMessage = ''} 
-/>
 
 <style>
     main {
@@ -155,30 +162,37 @@
         font-size: 1.1rem;
     }
 
-    .appointments-view {
-        max-width: 800px;
-        margin: 0 auto;
-    }
+    /* .appointments-view removed as we use simple container now */
 
-    .appointments-list {
-        display: flex;
-        flex-direction: column;
+    .appointments-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 1.5rem;
         margin-top: 2rem;
     }
 
-    .empty-msg {
+    .empty-state {
         text-align: center;
         padding: 4rem;
         color: var(--color-text-light);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
     }
 
-    .btn-link {
-        background: none;
+    .container-margin {
+        margin-top: 0;
+    }
+    
+    .btn-primary {
+         background-color: var(--color-primary);
+        color: white;
         border: none;
-        color: var(--color-primary);
-        text-decoration: underline;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
         cursor: pointer;
-        font-size: 1rem;
+        transition: background-color 0.2s;
     }
 </style>

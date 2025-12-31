@@ -1,18 +1,32 @@
 <script>
+    import { store } from '../store.svelte.js';
+    
     let { doctor, onSelect } = $props();
+
+    function handleDelete(e) {
+        e.stopPropagation(); // Prevent card selection when clicking delete
+        if(confirm(`Are you sure you want to remove Dr. ${doctor.name}?`)) {
+            store.removeDoctor(doctor.id);
+        }
+    }
 </script>
 
-<div class="doctor-card" onclick={() => onSelect(doctor)}>
-    <div class="card-header">
-        <div class="avatar">{doctor.name.charAt(0)}</div>
-        <div class="info">
-            <h3>{doctor.name}</h3>
-            <span class="specialization">{doctor.specialization}</span>
-        </div>
+<div 
+    class="doctor-card" 
+    onclick={() => onSelect(doctor)}
+    onkeydown={(e) => e.key === 'Enter' && onSelect(doctor)}
+    role="button"
+    tabindex="0"
+>
+    {#if store.isAdmin}
+        <button class="delete-btn" onclick={handleDelete} title="Remove Doctor">×</button>
+    {/if}
+    <div class="header">
+        <h3>{doctor.name}</h3>
+        <span class="rating">★ {doctor.rating}</span>
     </div>
     <div class="card-body">
         <p class="clinic">🏥 {doctor.clinic}</p>
-        <p class="rating">⭐ {doctor.rating} Rating</p>
         <p class="fee">💰 ${doctor.fee} Consultation</p>
     </div>
     <div class="card-footer">
@@ -28,18 +42,44 @@
         box-shadow: var(--shadow-sm);
         transition: transform 0.2s, box-shadow 0.2s;
         cursor: pointer;
-        border: 1px solid var(--color-border);
+        border: 1px solid transparent; /* Changed */
+        position: relative; /* For absolute delete button */
         display: flex;
         flex-direction: column;
         gap: 1rem;
     }
 
     .doctor-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-2px); /* Changed */
         box-shadow: var(--shadow-md);
+        border-color: var(--color-primary-light); /* Added */
+    }
+    
+    .delete-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: var(--color-error);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 16px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.8;
+    }
+    
+    .delete-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
     }
 
-    .card-header {
+    .header { /* This was 'card-header' in the original, but 'header' in the instruction's context. Assuming 'header' is correct based on the HTML structure. */
         display: flex;
         align-items: center;
         gap: 1rem;

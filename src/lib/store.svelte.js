@@ -1,16 +1,22 @@
 import { doctors as seedDoctors } from './doctors.js';
 
 function createStore() {
-    let doctors = $state(seedDoctors);
+    // let doctors = $state(seedDoctors); removed duplicate
     
     // Load initial state from LocalStorage or default
     const storedAppointments = localStorage.getItem('appointments');
     const storedBookedSlots = localStorage.getItem('bookedSlots');
     const storedTheme = localStorage.getItem('theme'); // 'dark' or 'light'
+    const storedDoctors = localStorage.getItem('doctors');
+    const storedIsAdmin = localStorage.getItem('isAdmin');
 
     let appointments = $state(storedAppointments ? JSON.parse(storedAppointments) : []);
     let bookedSlots = $state(storedBookedSlots ? JSON.parse(storedBookedSlots) : {});
     let darkMode = $state(storedTheme === 'dark');
+    // Initialize doctors from storage OR seed data if empty
+    let doctors = $state(storedDoctors ? JSON.parse(storedDoctors) : seedDoctors);
+    let isAdmin = $state(storedIsAdmin === 'true');
+    let authToken = $state('');
 
     // Effect to persist appointments and theme
     $effect.root(() => {
@@ -28,10 +34,46 @@ function createStore() {
                 document.body.classList.remove('dark');
             }
         });
+        $effect(() => {
+             localStorage.setItem('doctors', JSON.stringify(doctors));
+        });
+        $effect(() => {
+            localStorage.setItem('isAdmin', isAdmin);
+        });
     });
 
     function toggleTheme() {
         darkMode = !darkMode;
+    }
+
+    function login(username, password) {
+        if (username === 'admin' && password === 'admin') {
+            isAdmin = true;
+            return true;
+        }
+        return false;
+    }
+
+    function logout() {
+        isAdmin = false;
+    }
+
+    function addDoctor(doctor) {
+        doctors.push({ ...doctor, id: crypto.randomUUID() });
+    }
+
+    function removeDoctor(id) {
+        const index = doctors.findIndex(d => d.id === id);
+        if (index !== -1) {
+            doctors.splice(index, 1);
+        }
+    }
+
+    function payForAppointment(id) {
+        const index = appointments.findIndex(a => a.id === id);
+        if (index !== -1) {
+            appointments[index].paymentStatus = 'paid';
+        }
     }
 
     function bookAppointment(appointment) {
@@ -46,6 +88,7 @@ function createStore() {
             ...appointment,
             id: crypto.randomUUID(),
             status: 'confirmed',
+            paymentStatus: 'pending',
             createdAt: new Date().toISOString()
         };
 
@@ -117,17 +160,29 @@ function createStore() {
          }
     }
     
+    function setAuthToken(token) {
+        authToken = token;
+    }
+
     // Explicitly return state and methods
     return {
         get doctors() { return doctors; },
         get appointments() { return appointments; },
         get bookedSlots() { return bookedSlots; },
         get darkMode() { return darkMode; },
+        get isAdmin() { return isAdmin; },
+        get authToken() { return authToken; },
+        setAuthToken,
         bookAppointment,
         cancelAppointment,
         rescheduleAppointment,
         deleteAppointment,
-        toggleTheme
+        toggleTheme,
+        addDoctor,
+        removeDoctor,
+        payForAppointment,
+        login,
+        logout
     };
 }
 

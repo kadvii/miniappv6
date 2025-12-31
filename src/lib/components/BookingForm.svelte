@@ -52,6 +52,7 @@
                 doctorId: doctor.id,
                 doctorName: doctor.name,
                 doctorSpec: doctor.specialization,
+                doctorFee: doctor.fee,
                 patientName: name,
                 patientPhone: phone,
                 date,

@@ -1,4 +1,5 @@
 <script>
+    import { store } from '../store.svelte.js';
     import { fade } from 'svelte/transition';
 
     let { appointment, onCancel, onReschedule } = $props();
@@ -6,9 +7,53 @@
     function getStatusColor(status) {
         switch (status) {
             case 'confirmed': return 'status-confirmed';
+            case 'paid': return 'status-paid';
             case 'canceled': return 'status-canceled';
             default: return 'status-default';
         }
+    }
+
+    function handlePay() {
+        // Use user provided function structure
+        const token = store.authToken;
+        
+        if (typeof my === 'undefined') {
+             // Dev / Desktop Fallback
+             alert(`Simulating Hylid Pay for ${appointment.doctorFee}...`);
+             store.payForAppointment(appointment.id);
+             return;
+        }
+
+        fetch('https://its.mouamle.space/api/payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            },
+            // Note: User snippet had no body. Assuming backend knows what to charge or returns a generic test link.
+            // If we needed to send amount: body: JSON.stringify({ amount: appointment.doctorFee })
+        }).then(res => res.json()).then(data => {
+             // my.tradePay logic from user
+            my.tradePay({
+                paymentUrl: data.url, // User snippet expected data.url
+                success: (res) => {
+                    my.alert({
+                        content: "Payment successful",
+                    });
+                    store.payForAppointment(appointment.id); // Update UI
+                },
+                fail: (res) => {
+                     my.alert({
+                        content: "Payment failed (Bridge Fail): " + JSON.stringify(res),
+                    });
+                }
+            });
+        }).catch(err => {
+            let errorDetails = String(err);
+            my.alert({
+                content: "Payment Error: " + errorDetails,
+            });
+        });
     }
 </script>
 
@@ -21,6 +66,9 @@
         <div class="status-badge {getStatusColor(appointment.status)}">
             {appointment.status}
         </div>
+        {#if appointment.paymentStatus === 'paid'}
+            <div class="status-badge status-paid" style="margin-left: 0.5rem;">PAID</div>
+        {/if}
     </div>
     
     <div class="appt-body">
@@ -38,6 +86,11 @@
 
     <div class="appt-actions">
         {#if appointment.status !== 'canceled'}
+            {#if appointment.paymentStatus !== 'paid'}
+                 <button class="btn-pay" onclick={handlePay}>
+                    Pay ${appointment.doctorFee || '0'}
+                 </button>
+            {/if}
             <button class="btn-text" onclick={() => onReschedule(appointment)}>Reschedule</button>
             <button class="btn-text danger" onclick={() => onCancel(appointment.id)}>Cancel</button>
         {/if}
@@ -90,6 +143,11 @@
         background-color: var(--color-success-light);
         color: var(--color-success);
     }
+    
+    .status-paid {
+        background-color: #dbeafe; /* Blue 100 */
+        color: #1d4ed8; /* Blue 700 */
+    }
 
     .status-canceled {
         background-color: var(--color-bg);
@@ -133,6 +191,18 @@
         margin-top: 0.5rem;
         border-top: 1px solid var(--color-border);
         padding-top: 0.75rem;
+    }
+
+    .btn-pay {
+        background-color: var(--color-primary);
+        color: white;
+        border: none;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-right: auto;
     }
 
     .btn-text {
