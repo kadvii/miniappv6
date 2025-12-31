@@ -197,22 +197,22 @@
         background-color: var(--color-primary);
         color: white;
         border: none;
-        padding: 0.25rem 0.75rem;
+        padding: 0.6rem 1rem; /* Larger */
         border-radius: var(--radius-sm);
         cursor: pointer;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         margin-right: auto;
     }
 
     .btn-text {
         background: none;
-        border: none;
+        border: 1px solid transparent; /* Ensure box model integrity */
         cursor: pointer;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         color: var(--color-primary);
-        padding: 0.25rem 0.5rem;
+        padding: 0.6rem 1rem; /* Larger touch target */
         border-radius: var(--radius-sm);
         transition: background-color 0.2s;
     }
