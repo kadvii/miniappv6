@@ -64,6 +64,7 @@
     nav {
         display: flex;
         gap: 1rem;
+        align-items: center;
     }
 
     button {
@@ -76,6 +77,7 @@
         padding: 0.5rem 1rem;
         border-radius: var(--radius-md);
         transition: all 0.2s;
+        white-space: nowrap; /* Prevent awkward word breaks */
     }
 
     button:hover {
@@ -102,5 +104,30 @@
         font-size: 0.8rem;
         font-weight: bold;
         align-self: center;
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+        .app-header {
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem 0.5rem;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+        }
+
+        nav {
+            width: 100%;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap; 
+        }
+
+        button {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.8rem;
+        }
     }
 </style>
