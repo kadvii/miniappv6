@@ -63,9 +63,9 @@
         color: white;
         border: none;
         border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        font-size: 16px;
+        width: 32px; /* Increased from 24px */
+        height: 32px; /* Increased from 24px */
+        font-size: 20px; /* Increased from 16px */
         line-height: 1;
         cursor: pointer;
         display: flex;
