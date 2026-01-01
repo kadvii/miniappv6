@@ -17,6 +17,7 @@ function createStore() {
     let doctors = $state(storedDoctors ? JSON.parse(storedDoctors) : seedDoctors);
     let isAdmin = $state(storedIsAdmin === 'true');
     let authToken = $state('');
+    let searchTerm = $state(''); // Global search term for integration with Header scan
 
     // Effect to persist appointments and theme
     $effect.root(() => {
@@ -172,6 +173,8 @@ function createStore() {
         get darkMode() { return darkMode; },
         get isAdmin() { return isAdmin; },
         get authToken() { return authToken; },
+        get searchTerm() { return searchTerm; },
+        set searchTerm(v) { searchTerm = v; },
         setAuthToken,
         bookAppointment,
         cancelAppointment,

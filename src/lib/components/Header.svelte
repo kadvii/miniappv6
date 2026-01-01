@@ -5,6 +5,37 @@
     let { currentTab, onTabChange } = $props();
 
     let showLoginModal = $state(false);
+
+    function handleScan() {
+        if (typeof my !== 'undefined' && my.scan) {
+            my.scan({
+                type: 'qr',
+                success: (res) => {
+                    // Vibrate on success
+                    if (my.vibrate) {
+                        my.vibrate({
+                            success: () => console.log('Vibration triggered')
+                        });
+                    }
+                    
+                    // Update search term and go to home
+                    store.searchTerm = res.code;
+                    onTabChange('home');
+                    
+                    // Optional: Alert removed or kept? Request implied it just searches. 
+                    // User said "aper in search". So no alert needed strictly, but maybe good for feedback?
+                    // Let's rely on the search bar population as feedback.
+                },
+            });
+        } else {
+            console.log('Scan clicked - my.scan/vibrate API not available');
+            // Mock behavior
+            const mockResult = 'MockDoctor';
+            alert(`Scan success (mock)! Vibrate! Result: ${mockResult}`);
+            store.searchTerm = mockResult;
+            onTabChange('home');
+        }
+    }
 </script>
 
 <header class="app-header">
@@ -21,6 +52,9 @@
             onclick={() => onTabChange('appointments')}
         >
             My Appointments
+        </button>
+        <button onclick={handleScan}>
+            Scan
         </button>
         <button class="theme-btn" onclick={store.toggleTheme} aria-label="Toggle Dark Mode">
             {store.darkMode ? '☀️' : '🌙'}

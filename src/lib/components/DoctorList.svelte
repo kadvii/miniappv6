@@ -9,7 +9,7 @@
 
     let { onSelectDoctor } = $props();
 
-    let searchTerm = $state('');
+    // Removed local searchTerm, using store.searchTerm
     let selectedSpecialization = $state('All');
     let isAdding = $state(false);
 
@@ -18,7 +18,8 @@
 
     // Derived filtered doctors
     let filteredDoctors = $derived(store.doctors.filter(doc => {
-        const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const term = store.searchTerm || '';
+        const matchesSearch = doc.name.toLowerCase().includes(term.toLowerCase());
         const matchesSpec = selectedSpecialization === 'All' || doc.specialization === selectedSpecialization;
         return matchesSearch && matchesSpec;
     }));
@@ -36,7 +37,7 @@
         <input 
             type="text" 
             placeholder="Search doctors..." 
-            bind:value={searchTerm}
+            bind:value={store.searchTerm}
             class="search-input"
         />
         <div class="tags">
